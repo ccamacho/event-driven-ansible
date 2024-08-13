@@ -111,9 +111,14 @@ def load_kubernetes_api(k8s_event_api: str) -> dict:
     All the clients have the following
     syntax i.e. client.AppsV1Api() or client.AppsV1Api
     """
-    api_instance = getattr(client, k8s_event_api)()
-    k8s_watcher = watch.Watch()
-    return api_instance, k8s_watcher
+    try:
+        api_instance = getattr(client, k8s_event_api)()
+        k8s_watcher = watch.Watch()
+        logger.info("Loaded Kubernetes API: %s", k8s_event_api)
+        return api_instance, k8s_watcher
+    except AttributeError:
+        logger.error("Failed to load Kubernetes API: %s. API might be invalid.", k8s_event_api)
+        raise
 
 
 def check_method_parameters(
